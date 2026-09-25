@@ -1,0 +1,44 @@
+name: Build ScreamALSA Kernel Module
+
+on:
+  workflow_dispatch:  # 允许你手动点击按钮触发
+
+jobs:
+  build:
+    # 关键：使用免费的 ARM64 原生运行器
+    runs-on: ubuntu-24.04-arm
+    
+    steps:
+      - name: 检出你的代码（这里用你的仓库，但我们需要先把代码放进去）
+        uses: actions/checkout@v4
+      
+      - name: 安装编译依赖
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libelf-dev
+      
+      - name: 下载你的内核头文件
+        run: |
+          # 这里需要你上传内核头文件到仓库的 Releases 或直接放在仓库里
+          # 为了简化，我们假设你把 header-6.12.91-ophub.tar.gz 放到了仓库根目录
+          # 如果文件很大，建议用 wget 从你的服务器下载
+          echo "准备内核头文件..."
+      
+      - name: 解压内核头文件
+        run: |
+          mkdir -p /tmp/kernel-headers
+          tar -xzf header-6.12.91-ophub.tar.gz -C /tmp/kernel-headers
+      
+      - name: 编译模块
+        run: |
+          # 进入你的 ScreamALSA 源码目录
+          # 假设你把 screamalsa-main 文件夹也放到了仓库里
+          cd screamalsa-main
+          # 指向我们解压的头文件目录进行编译
+          make -C /tmp/kernel-headers M=$(pwd) modules
+      
+      - name: 上传编译产物（.ko 文件）
+        uses: actions/upload-artifact@v4
+        with:
+          name: snd-screamalsa-ko
+          path: screamalsa-main/snd-screamalsa.ko

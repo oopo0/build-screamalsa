@@ -14,12 +14,17 @@ jobs:
       - name: 安装编译依赖
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential libelf-dev bc bison flex
+          sudo apt-get install -y build-essential libelf-dev bc bison flex unzip
 
       - name: 下载内核头文件
         run: |
           wget -O header-6.12.91-ophub.tar.gz \
             https://github.com/oopo0/build-screamalsa/releases/download/v1/header-6.12.91-ophub.tar.gz
+
+      - name: 下载 ScreamALSA 源码
+        run: |
+          wget -O screamalsa-main.zip \
+            https://github.com/oopo0/build-screamalsa/releases/download/v1/screamalsa-main.zip
 
       - name: 解压内核头文件
         run: |
@@ -28,13 +33,13 @@ jobs:
           echo "=== 内核头文件目录内容 ==="
           ls -la /tmp/kernel-headers/
 
-      - name: 检查仓库内容
+      - name: 解压 ScreamALSA 源码
         run: |
-          echo "=== 仓库根目录 ==="
+          unzip -q screamalsa-main.zip
+          echo "=== 解压后目录 ==="
           ls -la
-          echo ""
-          echo "=== screamalsa-main 目录 ==="
-          ls -la screamalsa-main/ 2>/dev/null || echo "screamalsa-main 目录不存在"
+          echo "=== screamalsa-main 目录内容 ==="
+          ls -la screamalsa-main/
 
       - name: 编译模块
         run: |

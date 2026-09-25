@@ -11,10 +11,21 @@ jobs:
       - name: 检出代码
         uses: actions/checkout@v4
 
-      - name: 安装编译依赖
+      - name: 安装 GCC 14 和编译依赖
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential libelf-dev bc bison flex unzip
+          sudo apt-get install -y software-properties-common
+          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+          sudo apt-get update
+          sudo apt-get install -y gcc-14 g++-14 build-essential libelf-dev bc bison flex unzip
+
+      - name: 设置 GCC 14 为默认编译器
+        run: |
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 100
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-14 100
+          sudo update-alternatives --set gcc /usr/bin/gcc-14
+          sudo update-alternatives --set g++ /usr/bin/g++-14
+          gcc --version
 
       - name: 下载内核头文件
         run: |
